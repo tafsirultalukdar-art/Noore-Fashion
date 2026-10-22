@@ -159,7 +159,8 @@ footer a{color:var(--copper)}
       <div class="f"><label for="nk">New key (at least 6 characters)</label><input id="nk" type="password" autocomplete="off"></div>
       <button onclick="changeKey()">Change key</button>
     </div>
-      </div>
+    <div class="bar"><span id="barMsg">No unsaved changes</span><button id="pubBtn" onclick="publishAll()">Save and publish</button></div>
+  </div>
   <p><a href="#" onclick="adminMode=false;route();window.scrollTo(0,0);return false" style="color:var(--copper)">Back to shop</a></p>
 </main>
 
@@ -189,27 +190,20 @@ footer a{color:var(--copper)}
 </div></div>
 <div id="toast" role="status"></div>
 
+<script id="data" type="application/json">{"key":{"salt":"noore7","hash":"5ed4dfec9617e2bc488e477e2832341dfff3de1941b30bd63b2fe58beefce21b"},"products":[{"code":"NM-001","name":"Chiffon Hijab","cat":"Hijab","price":450,"old":550,"sizes":["Free"],"colors":["Dusty Rose","Beige","Mocha"],"desc":"Lightweight chiffon, easy to drape and stays in place.","img":"","out":false},{"code":"NM-002","name":"Silk Touch Scarf","cat":"Hijab","price":650,"old":0,"sizes":["Free"],"colors":["Ivory","Copper","Brown"],"desc":"Smooth silk-touch fabric with a soft shine.","img":"","out":false},{"code":"NM-003","name":"Classic Abaya","cat":"Abaya","price":2850,"old":3200,"sizes":["52","54","56"],"colors":["Black","Brown"],"desc":"Relaxed fit, breathable fabric, full length.","img":"","out":false},{"code":"NM-004","name":"Embroidery Abaya","cat":"Abaya","price":3650,"old":0,"sizes":["52","54","56"],"colors":["Black","Beige"],"desc":"Hand finished embroidery on the sleeves and front.","img":"","out":false},{"code":"NM-005","name":"Cotton Kurti","cat":"Kurti","price":1450,"old":1700,"sizes":["M","L","XL"],"colors":["Peach","Cream"],"desc":"Pure cotton, comfortable for daily wear.","img":"","out":false},{"code":"NM-006","name":"Modest Two Piece","cat":"Two Piece","price":2250,"old":0,"sizes":["M","L","XL"],"colors":["Mocha","Olive"],"desc":"Matching top and bottom set in soft fabric.","img":"","out":false}]}</script>
 <script>
+const DATA=JSON.parse(document.getElementById('data').textContent);
+const SRC='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
 const MSGR='https://m.me/61592671197134';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const tk=n=>'৳'+Number(n).toLocaleString('en-IN');
-let P=[],cat='All',cart=[],pending=[],editIdx=-1,img='',token='',adminMode=location.hash==='#admin';
-try{cart=JSON.parse(localStorage.getItem('nm_cart')||'[]');token=sessionStorage.getItem('nm_tok')||''}catch(e){}
+let adminMode=location.hash==='#admin',P=DATA.products,K=DATA.key,cat='All',cart=[],pending=[],dirty=false,editIdx=-1,img='',unlocked=false;
+try{cart=JSON.parse(localStorage.getItem('nm_cart')||'[]')}catch(e){}
 const saveCart=()=>{try{localStorage.setItem('nm_cart',JSON.stringify(cart))}catch(e){}};
 const find=c=>P.find(p=>p.code===c);
 function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',3500)}
 const openM=id=>$(id).classList.add('on'),closeM=id=>$(id).classList.remove('on');
-async function api(path,opt={}){
- const r=await fetch('/api'+path,{...opt,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})}});
- const d=await r.json().catch(()=>({}));
- if(!r.ok){const e=new Error(d.error||'Something went wrong.');e.status=r.status;throw e}
- return d;
-}
-async function load(){
- try{P=await api('/products')}catch(e){toast('Could not load products. Please refresh.')}
- chips();render();if(token)adminRender();
-}
 
 /* ---------- storefront ---------- */
 function chips(){const cs=['All',...new Set(P.map(p=>p.cat).filter(Boolean))];if(!cs.includes(cat))cat='All';$('chips').innerHTML=cs.map(c=>`<button class="${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('')}
@@ -225,7 +219,7 @@ function render(){
   <div class="price">${tk(p.price)}${p.old?`<s>${tk(p.old)}</s>`:''}</div>
   <div class="opts">${p.sizes.length?`<select id="s-${p.code}" aria-label="Size">${p.sizes.map(s=>`<option>${esc(s)}</option>`).join('')}</select>`:''}
   ${p.colors.length?`<select id="c-${p.code}" aria-label="Color">${p.colors.map(s=>`<option>${esc(s)}</option>`).join('')}</select>`:''}</div>
-  <div class="acts"><button onclick="add('${p.code}')" ${p.out?'disabled':''}>Add to cart</button><button class="fill" onclick="orderOne('${p.code}')" ${p.out?'disabled':''}>Order now</button></div></div></article>`).join(''):`<p class="empty">${P.length?'No products found. Try another name or code.':'Products are loading...'}</p>`;
+  <div class="acts"><button onclick="add('${p.code}')" ${p.out?'disabled':''}>Add to cart</button><button class="fill" onclick="orderOne('${p.code}')" ${p.out?'disabled':''}>Order now</button></div></div></article>`).join(''):'<p class="empty">No products found. Try another name or code.</p>';
  $('cartCount').textContent=cart.reduce((a,b)=>a+b.qty,0);
  $('items').innerHTML=cart.map((c,i)=>{const p=find(c.code);return `<div class="item"><div><b>${esc(p.name)}</b><small>${esc(c.code)} &middot; ${esc(c.size)} &middot; ${esc(c.color)}</small><small>${tk(p.price)}</small></div><div class="qty"><button onclick="chg(${i},-1)" aria-label="Decrease">−</button>${c.qty}<button onclick="chg(${i},1)" aria-label="Increase">+</button></div></div>`}).join('')||'<p class="empty">Your cart is empty. Add a product you like.</p>';
  $('total').textContent=tk(cart.reduce((a,c)=>a+c.qty*find(c.code).price,0));
@@ -259,34 +253,38 @@ function checkOrder(){
  return true;
 }
 function copyMsg(){if(!valid())return;upd();try{navigator.clipboard.writeText($('mMsg').textContent).then(()=>toast('Order details copied')).catch(()=>toast('Select the text and copy it'))}catch(e){toast('Select the text and copy it')}}
+function goAdmin(){adminMode=true;route();window.scrollTo(0,0)}
+function openMsgr(a){let w=null;try{w=window.open(a.href,'_blank')}catch(e){}if(!w){try{window.top.location.href=a.href}catch(e){}}return false}
 function openCart(){$('drawer').classList.add('open');$('shade').classList.add('on')}
 function closeCart(){$('drawer').classList.remove('open');$('shade').classList.remove('on')}
 $('q').addEventListener('input',render);
 
-/* ---------- admin (all changes are saved to the database instantly) ---------- */
+/* ---------- admin ---------- */
+const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 function route(){
  const a=adminMode;
  $('store').hidden=a;$('adm').hidden=!a;$('cartBtn').hidden=a;
- if(a){token?showTools():lockAdmin()}
+ if(a)checkOwner();else lockAdmin();
 }
-function goAdmin(){adminMode=true;route();window.scrollTo(0,0)}
-function showTools(){$('lock').hidden=true;$('tools').hidden=false;adminRender()}
-function lockAdmin(){token='';try{sessionStorage.removeItem('nm_tok')}catch(e){}$('tools').hidden=true;$('lock').hidden=false;$('keyRow').hidden=false;$('lockMsg').textContent='Enter your security key to manage products.';$('keyErr').textContent=''}
+async function checkOwner(){
+ if(unlocked)return;
+ $('lockMsg').textContent='Enter your security key to manage products.';$('keyRow').hidden=false;
+}
+let fails=0,until=0;
 async function unlock(){
- try{const d=await api('/admin/login',{method:'POST',body:JSON.stringify({key:$('key').value})});
-  token=d.token;try{sessionStorage.setItem('nm_tok',token)}catch(e){}
-  $('key').value='';$('keyErr').textContent='';showTools()}
- catch(e){$('keyErr').textContent=e.message;$('key').value=''}
+ if(Date.now()<until){$('keyErr').textContent='Too many wrong tries. Please wait 30 seconds.';return}
+ if(!(window.crypto&&crypto.subtle)){$('keyErr').textContent='This browser cannot check keys. Please use a normal browser.';return}
+ const h=await sha(K.salt+$('key').value);
+ if(h===K.hash){fails=0;unlocked=true;$('keyErr').textContent='';$('lock').hidden=true;$('tools').hidden=false;$('key').value='';adminRender()}
+ else{fails++;if(fails>=5){until=Date.now()+30000;fails=0}$('keyErr').textContent='Wrong key. Try again.';$('key').value=''}
 }
-async function adm(fn,okMsg){
- try{await fn();await load();adminRender();if(okMsg)toast(okMsg);return true}
- catch(e){if(e.status===401){lockAdmin();$('keyErr').textContent=e.message}else toast(e.message);return false}
-}
+function lockAdmin(){unlocked=false;$('tools').hidden=true;$('lock').hidden=false;$('keyErr').textContent=''}
+function mark(){dirty=true;$('barMsg').textContent='You have unsaved changes';chips();render();adminRender()}
 function adminRender(){
  $('cats').innerHTML=[...new Set(P.map(p=>p.cat).filter(Boolean))].map(c=>`<option value="${esc(c)}">`).join('');
  $('alist').innerHTML=P.map((p,i)=>`<div class="arow">${p.img?`<img src="${p.img}" alt="">`:'<div class="nopic"></div>'}<div class="t"><b>${esc(p.name)}</b><small>${esc(p.code)} &middot; ${esc(p.cat)} &middot; ${tk(p.price)}${p.out?' &middot; Sold out':''}</small></div><div class="b"><button onclick="toggleOut(${i})">${p.out?'Mark in stock':'Mark sold out'}</button><button onclick="editP(${i})">Edit</button><button class="danger" onclick="delP(${i},this)">Remove</button></div></div>`).join('')||'<p class="empty">No products yet. Add your first product above.</p>';
 }
-const list2=s=>s.split(',').map(x=>x.trim()).filter(Boolean);
+const list=s=>s.split(',').map(x=>x.trim()).filter(Boolean);
 function pickImg(inp){
  const f=inp.files[0];if(!f)return;
  const r=new FileReader();
@@ -297,17 +295,15 @@ function pickImg(inp){
   img=c.toDataURL('image/jpeg',.78);$('aPrev').src=img;$('aPrev').hidden=false};im.src=r.result};
  r.readAsDataURL(f);
 }
-async function saveProduct(){
+function saveProduct(){
  const name=$('aName').value.trim(),price=Number($('aPrice').value);
  if(!name||!(price>0)){$('formErr').textContent='Enter a product name and a price.';return}
  let code=$('aCode').value.trim().replace(/[^A-Za-z0-9_-]/g,'');
  if(!code){let n=P.length+1;do{code='NM-'+String(n++).padStart(3,'0')}while(P.some((p,i)=>p.code===code&&i!==editIdx))}
- const o={code,name,cat:$('aCat').value.trim()||'General',price,old:Number($('aOld').value)||0,sizes:list2($('aSizes').value),colors:list2($('aColors').value),desc:$('aDesc').value.trim(),img,out:editIdx>=0?!!P[editIdx].out:false};
- if(editIdx>=0)o.oldCode=P[editIdx].code;
- $('saveBtn').disabled=true;
- const ok=await adm(()=>api('/admin/products',{method:'POST',body:JSON.stringify(o)}),'Product saved. It is live now.');
- $('saveBtn').disabled=false;
- if(ok)resetForm();else $('formErr').textContent='Could not save. See the message above.';
+ if(P.some((p,i)=>p.code===code&&i!==editIdx)){$('formErr').textContent='This code is already used.';return}
+ const o={code,name,cat:$('aCat').value.trim()||'General',price,old:Number($('aOld').value)||0,sizes:list($('aSizes').value),colors:list($('aColors').value),desc:$('aDesc').value.trim(),img,out:editIdx>=0?!!P[editIdx].out:false};
+ editIdx>=0?P[editIdx]=o:P.unshift(o);
+ resetForm();mark();toast('Product saved. Press Save and publish to put it live.');
 }
 function editP(i){
  const p=P[i];editIdx=i;img=p.img||'';
@@ -317,18 +313,26 @@ function editP(i){
  $('aName').scrollIntoView({behavior:'smooth',block:'center'});
 }
 function resetForm(){editIdx=-1;img='';['aName','aCode','aCat','aPrice','aOld','aSizes','aColors','aDesc','aImg'].forEach(i=>$(i).value='');$('aPrev').hidden=true;$('formErr').textContent='';$('formTitle').textContent='Add a product';$('saveBtn').textContent='Add product'}
-function toggleOut(i){const p={...P[i],out:!P[i].out,oldCode:P[i].code};adm(()=>api('/admin/products',{method:'POST',body:JSON.stringify(p)}),p.out?'Marked sold out':'Marked in stock')}
+function toggleOut(i){P[i].out=!P[i].out;mark()}
 function delP(i,b){
- if(b.dataset.arm){adm(()=>api('/admin/products/'+encodeURIComponent(P[i].code),{method:'DELETE'}),'Product removed');return}
+ if(b.dataset.arm){P.splice(i,1);mark();return}
  b.dataset.arm=1;b.textContent='Tap again to remove';setTimeout(()=>{b.dataset.arm='';b.textContent='Remove'},3000);
 }
 async function changeKey(){
  const v=$('nk').value;if(v.length<6){toast('Use at least 6 characters');return}
- try{const d=await api('/admin/change-key',{method:'POST',body:JSON.stringify({key:v})});token=d.token;try{sessionStorage.setItem('nm_tok',token)}catch(e){}$('nk').value='';toast('Security key changed')}
- catch(e){toast(e.message)}
+ const salt=Math.random().toString(36).slice(2,10);
+ K={salt,hash:await sha(salt+v)};$('nk').value='';mark();toast('Key changed. Press Save and publish to apply it.');
 }
+async function publishAll(){
+ const json=JSON.stringify({key:K,products:P}).replace(/</g,'\\u003c');
+ const html=SRC.replace(/<script id="data" type="application\/json">[\s\S]*?<\/script>/,()=>'<script id="data" type="application/json">'+json+'<\/script>');
+ const btn=$('pubBtn');btn.disabled=true;$('barMsg').textContent='Publishing...';
+ let a=null;try{a=window.claude&&await claude.use('artifact')}catch(e){}
+ if(a){try{await a.publish(html);dirty=false;$('barMsg').textContent='Published. Your changes are live.';btn.disabled=false;return}catch(e){}}
+ const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));l.download='index.html';document.body.appendChild(l);l.click();l.remove();
+ dirty=false;$('barMsg').textContent='Saved as index.html (downloaded). Upload this file to your hosting to go live.';btn.disabled=false;
+}
+window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 window.addEventListener('hashchange',()=>{adminMode=location.hash==='#admin';route()});
-chips();render();route();load();
-</script>
-</body>
-</html>
+chips();render();route();
+</script></body></html>
