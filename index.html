@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV of Md Nirob Hasan</title>
+    <!-- Google Fonts for a professional look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- All CSS is embedded here -->
+    <style>
+        :root {
+            --left-bg: #2C3E50; /* Deep, professional blue */
+            --right-bg: #FFFFFF;
+            --title-color: #16A085; /* Modern, fresh green for titles */
+            --text-dark: #34495E;
+            --text-light: #7F8C8D;
+            --font-heading: 'Lato', sans-serif;
+            --font-body: 'Roboto', sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #ECF0F1;
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+            font-family: var(--font-body);
+            color: var(--text-dark);
+        }
+        .cv-container {
+            width: 210mm;
+            height: 297mm; /* Fixed height for A4 page */
+            display: flex;
+            background: var(--right-bg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden; /* Hide anything that might spill over */
+        }
+
+        /* --- Left Column --- */
+        .left-column {
+            background-color: var(--left-bg);
+            width: 35%;
+            padding: 25px 25px; /* Adjusted padding */
+            color: #ECF0F1;
+        }
+        .profile-pic-container { text-align: center; margin-bottom: 25px; }
+        .profile-pic { 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 50%; 
+            border: 5px solid #34495E; 
+            object-fit: cover;
+            object-position: center 20%;
+        }
+        .section-left { margin-bottom: 24px; } /* Adjusted margin */
+        .title-left { font-family: var(--font-heading); font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 8px; margin-bottom: 15px; border-bottom: 2px solid var(--title-color); }
+        .contact-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 12px; font-size: 13.5px; word-break: break-all; }
+        .contact-item a { color: #ECF0F1; text-decoration: none; transition: color 0.3s; }
+        .contact-item a:hover { color: var(--title-color); }
+        .icon { flex-shrink: 0; margin-top: 3px; }
+        .section-left ul { list-style: none; padding-left: 0; }
+        .section-left li { 
+            list-style-type: '✔  '; 
+            margin-left: 15px;
+            margin-bottom: 10px; 
+            font-size: 14px;
+        }
+
+        /* --- Right Column --- */
+        .right-column { 
+            width: 65%; 
+            padding: 35px 40px; /* Adjusted padding */
+            display: flex; 
+            flex-direction: column; 
+        }
+        .header-right { text-align: left; margin-bottom: 30px; } /* Adjusted margin */
+        .header-right h1 { font-family: var(--font-heading); font-size: 42px; font-weight: 900; color: var(--text-dark); text-transform: uppercase; line-height: 1.1; }
+        .header-right h2 { font-family: var(--font-heading); font-size: 18px; font-weight: 400; color: var(--title-color); letter-spacing: 2px; margin-top: 5px; }
+        .section-right { margin-bottom: 24px; } /* Adjusted margin */
+        .title-right { font-family: var(--font-heading); font-size: 20px; font-weight: 700; color: var(--text-dark); text-transform: uppercase; letter-spacing: 1.5px; padding-bottom: 8px; border-bottom: 3px solid var(--title-color); margin-bottom: 18px; }
+        .section-right > p { font-size: 15px; color: var(--text-light); line-height: 1.6; }
+        .item-right { margin-bottom: 18px; } /* Adjusted margin */
+        .item-right h4 { font-family: var(--font-heading); font-size: 17px; font-weight: 700; color: var(--text-dark); }
+        .item-right h5 { font-size: 15px; font-weight: 500; color: var(--title-color); margin: 3px 0 8px 0; }
+        .item-right p { font-size: 14.5px; color: var(--text-light); }
+        
+        .experience-meta {
+            font-family: var(--font-heading);
+        }
+
+        .item-right ul {
+            list-style-type: '•';
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .item-right ul li {
+            font-size: 14.5px;
+            color: var(--text-light);
+            margin-bottom: 6px; /* Adjusted margin */
+            line-height: 1.6;
+            padding-left: 8px;
+        }
+        
+        /* Signature Section */
+        .signature-section { 
+            margin-top: auto; 
+            padding-top: 20px; /* Adjusted padding */
+            margin-left: auto;
+            width: 200px;
+        }
+        .signature-image { 
+            max-height: 40px; /* Adjusted size */
+            width: auto; 
+            display: block; 
+            margin: 0 auto 5px auto;
+        }
+        .signature-line { 
+            border: 0; 
+            border-top: 1.5px solid var(--text-dark); 
+            width: 180px;
+            margin: 0 auto 8px auto;
+        }
+        .signature-name { 
+            font-family: var(--font-heading); 
+            font-weight: 700; 
+            font-size: 14px; 
+            color: var(--text-dark); 
+            text-align: center;
+        }
+        
+        /* Print Styles */
+        @media print {
+            @page { size: A4; margin: 0; }
+            html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
+            body { background-color: #fff; }
+            .cv-container { box-shadow: none; width: 100%; height: 100%; }
+            .left-column { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-container">
+        <!-- Left Column: At-a-glance Info -->
+        <div class="left-column">
+            <div class="profile-pic-container">
+                <img src="https://i.postimg.cc/sDJgXJdj/Profile.jpg" alt="Profile Picture" class="profile-pic">
+            </div>
+
+            <div class="section-left">
+                <h3 class="title-left">CONTACT</h3>
+                <div class="contact-item">
+                    <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path fill="#ECF0F1" d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"/></svg></span>
+                    <a href="tel:+8801610331271">(+880)1610331271</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path fill="#ECF0F1" d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H464c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zM0 112C0 99.1 7.2 88.1 18.1 82.5L256 240l237.9-157.5C504.8 88.1 512 99.1 512 112V120.3L256 288 0 120.3V112zM256 320l245.9-162.5L512 400c0 13.3-7.2 24.3-18.1 29.9L256 320zM0 400V257.5L256 416l-18.1 12.1C229.2 435.9 216 424.9 216 412V400H48c-13.3 0-24.3-7.2-29.9-18.1L0 257.5z"/></svg></span>
+                    <a href="mailto:mdhasannirob271@gmail.com">mdhasannirob271@gmail.com</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 512 512"><path fill="#ECF0F1" d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.1-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.1 20.4 3.3 41.8 3.3 64zM512 256c0-141.4-114.6-256-256-256S0 114.6 0 256S114.6 512 256 512s256-114.6 256-256zM112 256c0-79.5 64.5-144 144-144s144 64.5 144 144-64.5 144-144 144S112 335.5 112 256z"/></svg></span>
+                    <a href="https://nirobhasan.netlify.app" target="_blank">nirobhasan.netlify.app</a>
+                </div>
+                <div class="contact-item">
+                    <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" height="16" width="16" viewBox="0 0 384 512"><path fill="#ECF0F1" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg></span>
+                    <span>Betbari, Fulbaria, Mymensingh</span>
+                </div>
+            </div>
+            <div class="section-left">
+                <h4 class="title-left">Personal Informations</h4>
+                <ul>
+                    <li><b>Date of Birth:</b> 03 June, 2008</li>
+                    <li><b>Marital Status:</b> Unmarried</li>
+                    <li><b>Relegion:</b> Islam</li>
+                    <li><b>Nationality:</b> Bangladeshi</li>
+                </ul>
+            </div>
+            <div class="section-left">
+                <h3 class="title-left">Key Skills</h3>
+                <ul>
+                    <li>Microsoft Office Applications</li>
+                    <li>Digital Communication</li>
+                    <li>Internet Research</li>
+                    <li>Fast & Accurate Typing</li>
+                    <li>Problem-Solving</li>
+                    <li>Driving</li>
+                </ul>
+            </div>
+
+            <div class="section-left">
+                <h3 class="title-left">Languages</h3>
+                <ul>
+                    <li>Bengali (Native)</li>
+                    <li>English (Professional)</li>
+                </ul>
+            </div>
+            
+            <div class="section-left">
+                <h3 class="title-left">Certifications</h3>
+                <ul>
+                    <li>National Skill Standard Basic Course</li>
+                    <li>Cybersecurity Awareness (Ongoing)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Column: Main Content -->
+        <div class="right-column">
+            <div class="header-right">
+                <h1>Md Nirob Hasan</h1>
+                <h2>Dedicated | Adaptable | Quick Learner</h2>
+            </div>
+
+            <div class="section-right">
+                <h3 class="title-right">Career Summary</h3>
+                <p>A responsible, motivated, and quick-learning individual with a strong sense of duty and teamwork. Always eager to take on new challenges, adapt to different work environments, and contribute positively to organizational goals.</p>
+            </div>
+            
+            <div class="section-right">
+                 <h3 class="title-right">Education</h3>
+                <div class="item-right">
+                    <h4>Higher Secondary Certificate (HSC)</h4>
+                    <h5>Shahabuddin Degree College, Mymensingh</h5>
+                    <p>Group: Humanities | GPA 3.83 | Passed: 2025</p>
+                </div>
+                 <div class="item-right">
+                    <h4>Secondary School Certificate (SSC)</h4>
+                    <h5>Betbari Thanarpar High School, Mymensingh</h5>
+                    <p>Group: Science | GPA 4.11 | Passed: 2023</p>
+                </div>
+            </div>
+
+            <div class="section-right">
+                <h3 class="title-right">Personal Interests</h3>
+                <p>A technology enthusiast passionate about problem-solving and digital literacy. Enjoys collaborative activities and learning new tools to enhance adaptability and productivity.</p>
+            </div>
+            
+            <div class="signature-section">
+                <img src="https://i.postimg.cc/G2d62VWz/Screenshot-From-2025-08-05-00-10-18.png" alt="Signature" class="signature-image">
+                <hr class="signature-line">
+                <p class="signature-name">Signature</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
