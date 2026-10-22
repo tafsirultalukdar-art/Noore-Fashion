@@ -100,7 +100,7 @@ app.post('/api/admin/change-key', requireAdmin, async (req, res) => {
   res.json({ ok: true, token: makeToken() }); // old sessions stop working, this one continues
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // ---- start ----
 const SAMPLE = [
@@ -109,7 +109,7 @@ const SAMPLE = [
   ['NM-003', 'Classic Abaya', 'Abaya', 2850, 3200, ['52', '54', '56'], ['Black', 'Brown'], 'Relaxed fit, breathable fabric, full length.']
 ];
 (async () => {
-  const client = new MongoClient(MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
+  const client = new MongoClient(MONGODB_URI);
   await client.connect();
   const db = client.db(DB_NAME);
   products = db.collection('products');
@@ -126,11 +126,4 @@ const SAMPLE = [
       ({ code, name, cat, price, old, sizes, colors, desc, img: '', out: false, createdAt: new Date(Date.now() - i) })));
   }
   app.listen(PORT, () => console.log('Noore shop running on http://localhost:' + PORT));
-})().catch((e) => {
-  const m = String(e && e.message || e);
-  console.error('\nCould not connect to the database.\nReal error: ' + m + '\n');
-  if (/querySrv|ENOTFOUND|ECONNREFUSED/i.test(m)) console.error('HINT: Your internet/DNS blocks the "mongodb+srv" lookup. Try: (1) set DNS to 8.8.8.8 and 1.1.1.1, (2) use a mobile hotspot, or (3) use the long "standard" connection string from Atlas (Connect > Drivers > choose an older driver version).');
-  else if (/auth|bad auth|credentials/i.test(m)) console.error('HINT: Wrong username or password. In Atlas > Database Access, edit the user, set a new password (use only letters and numbers), give it "Read and write to any database", then update MONGODB_URI in .env.');
-  else console.error('HINT: Most likely Atlas is blocking your IP. In Atlas > Network Access > Add IP Address > "Allow access from anywhere" (0.0.0.0/0), wait 1-2 minutes, and make sure the cluster is not paused.');
-  process.exit(1);
-});
+})().catch((e) => { console.error('Could not start. Check MONGODB_URI and Atlas Network Access.\n', e.message); process.exit(1); });
